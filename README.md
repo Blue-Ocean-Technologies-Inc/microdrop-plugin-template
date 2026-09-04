@@ -17,9 +17,11 @@ it to a repo renders:
 - `.copyright-header.txt` — the header `insert-license` stamps onto `.py`
   files
 - `AGENTS.md` — working-environment and code-style notes for agents
-- `LICENSE` — AGPL-3.0, verbatim from Microdrop; the header `insert-license`
-  adds says the license is "included in LICENSE"
-- `.gitignore` — merges in the shared ignores (`.pixi/*`, caches, etc.)
+- `LICENSE` — AGPL-3.0, verbatim from Microdrop; the header that
+  `insert-license` adds states that the license is "included in LICENSE"
+- `.gitignore` — replaces the file with the template's ignore list
+  (`.pixi/*`, caches, etc.); repo-specific ignores need to be added to the
+  template or re-added after applying it
 - `microdrop_plugin.toml` — the plugin manifest (groups, entry points)
 - `pyproject.toml` — packaging skeleton: project metadata, the
   `microdrop.plugins` entry point, `[tool.hatch.build]`, `[tool.pixi.package]`,
@@ -28,7 +30,8 @@ it to a repo renders:
   every repo's `CHANGELOG.md` renders the same way
 - `.github/workflows/conventional-commits.yml`, `publish.yml`,
   `unit-tests.yml` — CI: commit-message linting, the automatic conda
-  release, and the pytest/ruff/import-linter gate
+  release, and the pytest/import-linter gate (ruff runs in the pre-commit
+  hooks, not in CI)
 - `.copier-answers.yml` — copier's own bookkeeping, so `copier update` knows
   what was rendered from what template version
 
@@ -79,4 +82,5 @@ run from inside the plugin repo.
 
 See
 [`docs/superpowers/specs/2026-09-04-convention-rollout-design.md`](https://github.com/Blue-Ocean-Technologies-Inc/Microdrop/blob/main/docs/superpowers/specs/2026-09-04-convention-rollout-design.md)
-in the Microdrop repo for the full design rationale behind this rollout.
+(lands with Microdrop PR #664) in the Microdrop repo for the full design
+rationale behind this rollout.
