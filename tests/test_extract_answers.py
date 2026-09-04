@@ -94,13 +94,100 @@ def test_extracts_from_heater_like_repo(tmp_path):
     ]
     assert answers["anchor_package"] == "heater_controller"
     assert answers["entry_point_name"] == "heater"
+    assert answers["ui_group_name"] == "heater_ui"
     assert answers["ui_plugins"] == ["heater_controls_ui.plugin:HeaterControlsUiPlugin"]
+    assert answers["backend_group_name"] == "heater_backend"
     assert answers["backend_plugins"] == [
         "heater_controller.plugin:HeaterControllerPlugin"
     ]
     assert answers["run_dependencies"] == {"mpremote": ">=1.20"}
     assert answers["optional_extras"] == {}
+    assert answers["extra_force_includes"] == {}
     assert answers["has_redis_gated_tests"] is False
+
+
+def test_extracts_group_names_from_magnet_like_repo(tmp_path):
+    (tmp_path / "pyproject.toml").write_text(
+        textwrap.dedent("""
+        [project]
+        name = "magnet-microdrop-plugin"
+        version = "1.0.0"
+        description = "MicroDrop magnet plugin"
+        [project.entry-points."microdrop.plugins"]
+        magnet_peripherals = "peripheral_controller"
+        [tool.hatch.build.targets.wheel]
+        packages = ["peripheral_controller", "peripherals_ui", "peripheral_protocol_controls"]
+    """)
+    )
+    (tmp_path / "microdrop_plugin.toml").write_text(
+        textwrap.dedent("""
+        schema_version = 1
+        name = "magnet_peripherals"
+        label = "Magnet"
+        packages = ["peripheral_controller", "peripherals_ui", "peripheral_protocol_controls"]
+        [[groups]]
+        name = "zstage_ui"
+        label = "Magnet UI"
+        plugins = ["peripherals_ui.plugin:PeripheralsUiPlugin"]
+        enabled_key = "plugin_group_enabled.zstage_ui"
+        [[groups]]
+        name = "zstage_backend"
+        label = "Magnet backend"
+        plugins = ["peripheral_controller.plugin:PeripheralControllerPlugin"]
+        enabled_key = "plugin_group_enabled.zstage_backend"
+    """)
+    )
+    answers = extract_answers(tmp_path)
+    assert answers["device_name"] == "magnet_peripherals"
+    assert answers["ui_group_name"] == "zstage_ui"
+    assert answers["backend_group_name"] == "zstage_backend"
+
+
+def test_extracts_extra_force_includes_from_fluorescence_like_repo(tmp_path):
+    (tmp_path / "pyproject.toml").write_text(
+        textwrap.dedent("""
+        [project]
+        name = "fluorescence-microdrop-plugin"
+        version = "0.5.0"
+        description = "MicroDrop fluorescence plugin"
+        [project.entry-points."microdrop.plugins"]
+        fluorescence = "fluorescence_controller"
+        [project.optional-dependencies]
+        ai = ["osam"]
+        [tool.hatch.build.targets.wheel]
+        packages = ["fluorescence_controller", "fluorescence_controls_ui", "fluorescence_protocol_controls"]
+        [tool.hatch.build.targets.wheel.force-include]
+        "microdrop_plugin.toml" = "fluorescence_controller/microdrop_plugin.toml"
+        "ASI_SDK" = "fluorescence_controls_ui/ASI_SDK"
+        [tool.pixi.package.run-dependencies]
+        mpremote = ">=1.20"
+        scipy = "*"
+    """)
+    )
+    (tmp_path / "microdrop_plugin.toml").write_text(
+        textwrap.dedent("""
+        schema_version = 1
+        name = "fluorescence"
+        label = "Fluorescence"
+        packages = ["fluorescence_controller", "fluorescence_controls_ui", "fluorescence_protocol_controls"]
+        [[groups]]
+        name = "fluorescence_ui"
+        label = "Fluorescence UI"
+        plugins = ["fluorescence_controls_ui.plugin:FluorescenceControlsUiPlugin"]
+        enabled_key = "plugin_group_enabled.fluorescence_ui"
+        [[groups]]
+        name = "fluorescence_backend"
+        label = "Fluorescence backend"
+        plugins = ["fluorescence_controller.plugin:FluorescenceControllerPlugin"]
+        enabled_key = "plugin_group_enabled.fluorescence_backend"
+    """)
+    )
+    answers = extract_answers(tmp_path)
+    assert answers["optional_extras"] == {"ai": ["osam"]}
+    assert answers["run_dependencies"] == {"mpremote": ">=1.20", "scipy": "*"}
+    assert answers["extra_force_includes"] == {
+        "ASI_SDK": "fluorescence_controls_ui/ASI_SDK"
+    }
 
 
 def test_no_entry_point_raises(tmp_path):
