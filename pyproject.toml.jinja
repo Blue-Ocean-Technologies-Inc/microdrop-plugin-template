@@ -1,0 +1,66 @@
+[project]
+name = "[[ package_name ]]"
+version = "[[ version ]]"
+description = "[[ description ]]"
+requires-python = ">=3.11"
+dependencies = []
+[% if optional_extras %]
+[project.optional-dependencies]
+[% for name, specs in optional_extras.items() %]
+[[ name ]] = [[ specs | tojson ]]
+[% endfor %]
+[% endif %]
+
+[project.urls]
+Homepage = "https://github.com/Blue-Ocean-Technologies-Inc/[[ package_name ]]-py"
+
+# Discovered by MicroDrop's plugin manager: the entry point anchors the
+# distribution; the microdrop_plugin.toml manifest (shipped as package data of
+# the anchor via force-include) declares the toggleable plugin groups.
+[project.entry-points."microdrop.plugins"]
+[[ entry_point_name ]] = "[[ anchor_package ]]"
+
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[tool.hatch.build.targets.wheel]
+packages = [[ packages | tojson ]]
+
+[tool.hatch.build.targets.wheel.force-include]
+"microdrop_plugin.toml" = "[[ anchor_package ]]/microdrop_plugin.toml"
+
+[tool.pixi.workspace]
+channels = ["conda-forge", "alexsk", "vignesh229"]
+preview = ["pixi-build"]
+
+[tool.pixi.package]
+name = "[[ package_name ]]"
+version = "[[ version ]]"
+
+[tool.pixi.package.build.backend]
+name = "pixi-build-python"
+version = "0.*"
+channels = ["https://prefix.dev/conda-forge"]
+
+[tool.pixi.package.host-dependencies]
+hatchling = "*"
+[% if run_dependencies %]
+
+[tool.pixi.package.run-dependencies]
+[% for name, spec in run_dependencies.items() %]
+[[ name ]] = "[[ spec ]]"
+[% endfor %]
+[% endif %]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "pep621"
+tag_format = "v$version"
+bump_message = "chore: release v$new_version [skip ci]"
+update_changelog_on_bump = true
+# Repo-root Jinja template: release headers link to the GitHub release and
+# every entry links to its commit (see the template header for the variables).
+template = "CHANGELOG.md.j2"
+extras = { repo_url = "https://github.com/Blue-Ocean-Technologies-Inc/[[ package_name ]]-py" }
+version_files = ["pyproject.toml:^version"]
