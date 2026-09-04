@@ -1,4 +1,4 @@
-﻿name: Publish to prefix.dev
+name: Publish to prefix.dev
 
 # Builds the conda package (pixi-build, noarch python) and publishes it to
 # https://prefix.dev/microdrop-plugins on every push to main that contains

@@ -1,4 +1,4 @@
-﻿name: Unit tests
+name: Unit tests
 
 # Pure-unit pytest partition on every PR. Plugin repos are not pixi
 # workspaces: tests run inside pixi-microdrop's `test` environment (Microdrop

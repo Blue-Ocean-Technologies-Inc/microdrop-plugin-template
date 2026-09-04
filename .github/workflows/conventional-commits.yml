@@ -1,4 +1,4 @@
-﻿name: Conventional commits
+name: Conventional commits
 
 # Every PR commit must follow Conventional Commits (feat/fix/refactor/...),
 # so releases can be derived from history: `cz bump` (see .cz.toml) computes
