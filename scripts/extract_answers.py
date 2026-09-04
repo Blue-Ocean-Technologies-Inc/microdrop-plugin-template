@@ -17,12 +17,15 @@ Reads a plugin repo's ``pyproject.toml``, ``microdrop_plugin.toml``, and
 
 # Standard library imports.
 import sys
-from pathlib import Path
-
 import tomllib
+from pathlib import Path
 
 # Third-party imports.
 import yaml
+
+
+class ExtractError(ValueError):
+    """Raised when a plugin repo's config doesn't have the expected shape."""
 
 
 def _read_pyproject(repo_path):
@@ -32,6 +35,11 @@ def _read_pyproject(repo_path):
     project = data["project"]
 
     entry_points = project.get("entry-points", {}).get("microdrop.plugins", {})
+    if len(entry_points) != 1:
+        raise ExtractError(
+            'pyproject.toml: expected exactly one [project.entry-points."microdrop.plugins"] '
+            f"entry, found {len(entry_points)}"
+        )
     [(entry_point_name, anchor_package)] = entry_points.items()
 
     packages = data["tool"]["hatch"]["build"]["targets"]["wheel"]["packages"]
@@ -55,13 +63,27 @@ def _read_pyproject(repo_path):
     }
 
 
+def _group_ending_with(groups, suffix):
+    """Return the single group in `groups` whose name ends with `suffix`."""
+    group = next((g for g in groups if g["name"].endswith(suffix)), None)
+    if group is None:
+        raise ExtractError(
+            f"microdrop_plugin.toml: no group whose name ends in '{suffix}'"
+        )
+    return group
+
+
 def _read_manifest(repo_path):
     """Return device_name, device_label, and the ui/backend group plugins+labels
     from microdrop_plugin.toml."""
     data = tomllib.loads((repo_path / "microdrop_plugin.toml").read_text())
 
-    ui_group = next(g for g in data["groups"] if g["name"].endswith("_ui"))
-    backend_group = next(g for g in data["groups"] if g["name"].endswith("_backend"))
+    groups = data.get("groups")
+    if not groups:
+        raise ExtractError("microdrop_plugin.toml: no [[groups]] entries found")
+
+    ui_group = _group_ending_with(groups, "_ui")
+    backend_group = _group_ending_with(groups, "_backend")
 
     return {
         "device_name": data["name"],
@@ -109,8 +131,17 @@ def extract_answers(repo_path):
 
 
 def main():
+    if len(sys.argv) != 2:
+        print("usage: extract_answers.py <plugin-repo-path>", file=sys.stderr)
+        raise SystemExit(2)
+
     repo_path = Path(sys.argv[1])
-    answers = extract_answers(repo_path)
+    try:
+        answers = extract_answers(repo_path)
+    except ExtractError as error:
+        print(str(error), file=sys.stderr)
+        raise SystemExit(1) from error
+
     print(yaml.safe_dump(answers, sort_keys=False))
 
 
