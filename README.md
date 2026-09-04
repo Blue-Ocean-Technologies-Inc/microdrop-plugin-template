@@ -22,7 +22,9 @@ it to a repo renders:
 - `.gitignore` — replaces the file with the template's ignore list
   (`.pixi/*`, caches, etc.); repo-specific ignores need to be added to the
   template or re-added after applying it
-- `microdrop_plugin.toml` — the plugin manifest (groups, entry points)
+- `microdrop_plugin.toml` — the plugin manifest (groups, entry points); group
+  names are read from the plugin's existing manifest rather than derived, since
+  `enabled_key` is a persisted user preference
 - `pyproject.toml` — packaging skeleton: project metadata, the
   `microdrop.plugins` entry point, `[tool.hatch.build]`, `[tool.pixi.package]`,
   and the `[tool.commitizen]` config
