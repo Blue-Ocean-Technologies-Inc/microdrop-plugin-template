@@ -1,0 +1,77 @@
+# Copier template for MicroDrop plugin repos: shared dev tooling (ruff,
+# pre-commit, import-linter, CI) and the packaging skeleton.
+#   pixi exec --spec copier -- copier copy --trust <this dir> <repo> --data-file answers.yml
+#   pixi exec --spec copier -- copier update --trust      (inside a repo, later)
+_min_copier_version: "9.0.0"
+_answers_file: .copier-answers.yml
+_templates_suffix: .jinja
+_envops:
+  block_start_string: "[%"
+  block_end_string: "%]"
+  variable_start_string: "[["
+  variable_end_string: "]]"
+  comment_start_string: "[#"
+  comment_end_string: "#]"
+  trim_blocks: true
+  lstrip_blocks: true
+_exclude:
+  - copier.yml
+  - scripts
+  - tests
+  - README.md
+  - .git
+
+package_name:
+  type: str
+  help: Conda / distribution name, e.g. heater-microdrop-plugin
+device_name:
+  type: str
+  help: Short device id used as PKG prefix and manifest name, e.g. heater
+device_label:
+  type: str
+  default: "[[ device_name | capitalize ]]"
+version:
+  type: str
+  help: Current version (pyproject [project].version)
+description:
+  type: str
+packages:
+  type: yaml
+  help: The plugin's top-level packages, backend first, e.g. [heater_controller, heater_controls_ui, heater_protocol_controls]
+anchor_package:
+  type: str
+  default: "[[ packages[0] ]]"
+  help: Package that carries microdrop_plugin.toml and the entry point
+entry_point_name:
+  type: str
+  default: "[[ device_name ]]"
+ui_group_label:
+  type: str
+  default: "[[ device_label ]] UI (status/controls dock-pane + protocol column + statusbar icon)"
+ui_plugins:
+  type: yaml
+  help: Envisage plugin paths of the UI group, e.g. ["heater_controls_ui.plugin:HeaterControlsUiPlugin"]
+backend_group_label:
+  type: str
+  default: "[[ device_label ]] backend (board driver)"
+backend_plugins:
+  type: yaml
+  help: Envisage plugin paths of the backend group
+run_dependencies:
+  type: yaml
+  default: {}
+  help: 'Conda run dependencies, e.g. {mpremote: ">=1.20"}'
+optional_extras:
+  type: yaml
+  default: {}
+  help: '[project.optional-dependencies], e.g. {ai: ["osam"]}'
+large_file_exclude:
+  type: str
+  default: ""
+  help: Regex excluded from check-added-large-files, e.g. ^ASI_SDK/
+has_redis_gated_tests:
+  type: bool
+  default: false
+microdrop_dev_hooks_rev:
+  type: str
+  default: v0.1.0
