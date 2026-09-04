@@ -1,0 +1,16 @@
+schema_version = 1
+name = "[[ device_name ]]"
+label = "[[ device_label ]]"
+packages = [[ packages | tojson ]]
+
+[[ "[[" ]]groups[[ "]]" ]]
+name = "[[ device_name ]]_ui"
+label = "[[ ui_group_label ]]"
+plugins = [[ ui_plugins | tojson ]]
+enabled_key = "plugin_group_enabled.[[ device_name ]]_ui"
+
+[[ "[[" ]]groups[[ "]]" ]]
+name = "[[ device_name ]]_backend"
+label = "[[ backend_group_label ]]"
+plugins = [[ backend_plugins | tojson ]]
+enabled_key = "plugin_group_enabled.[[ device_name ]]_backend"
