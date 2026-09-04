@@ -48,12 +48,20 @@ entry_point_name:
 ui_group_label:
   type: str
   default: "[[ device_label ]] UI (status/controls dock-pane + protocol column + statusbar icon)"
+ui_group_name:
+  type: str
+  default: "[[ device_name ]]_ui"
+  help: Name of the UI plugin group (also its enabled_key suffix), e.g. heater_ui
 ui_plugins:
   type: yaml
   help: Envisage plugin paths of the UI group, e.g. ["heater_controls_ui.plugin:HeaterControlsUiPlugin"]
 backend_group_label:
   type: str
   default: "[[ device_label ]] backend (board driver)"
+backend_group_name:
+  type: str
+  default: "[[ device_name ]]_backend"
+  help: Name of the backend plugin group (also its enabled_key suffix), e.g. heater_backend
 backend_plugins:
   type: yaml
   help: Envisage plugin paths of the backend group
@@ -65,6 +73,10 @@ optional_extras:
   type: yaml
   default: {}
   help: '[project.optional-dependencies], e.g. {ai: ["osam"]}'
+extra_force_includes:
+  type: yaml
+  default: {}
+  help: 'Extra [tool.hatch.build.targets.wheel.force-include] entries as {source: target}, besides microdrop_plugin.toml, e.g. {ASI_SDK: "fluorescence_controls_ui/ASI_SDK"}'
 large_file_exclude:
   type: str
   default: ""

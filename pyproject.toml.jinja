@@ -29,6 +29,9 @@ packages = [[ packages | tojson ]]
 
 [tool.hatch.build.targets.wheel.force-include]
 "microdrop_plugin.toml" = "[[ anchor_package ]]/microdrop_plugin.toml"
+[% for src, dst in extra_force_includes.items() %]
+"[[ src ]]" = "[[ dst ]]"
+[% endfor %]
 
 [tool.pixi.workspace]
 channels = ["conda-forge", "alexsk", "vignesh229"]

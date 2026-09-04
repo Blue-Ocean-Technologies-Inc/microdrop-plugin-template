@@ -17,8 +17,9 @@ Reads a plugin repo's ``pyproject.toml``, ``microdrop_plugin.toml``, and
 
 # Standard library imports.
 import sys
-import tomllib
 from pathlib import Path
+
+import tomllib
 
 # Third-party imports.
 import yaml
@@ -30,7 +31,7 @@ class ExtractError(ValueError):
 
 def _read_pyproject(repo_path):
     """Return package_name, version, description, packages, entry point name/module,
-    run_dependencies, and optional_extras from pyproject.toml."""
+    run_dependencies, optional_extras, and extra_force_includes from pyproject.toml."""
     data = tomllib.loads((repo_path / "pyproject.toml").read_text())
     project = data["project"]
 
@@ -51,6 +52,20 @@ def _read_pyproject(repo_path):
     )
     optional_extras = project.get("optional-dependencies", {})
 
+    force_includes = (
+        data.get("tool", {})
+        .get("hatch", {})
+        .get("build", {})
+        .get("targets", {})
+        .get("wheel", {})
+        .get("force-include", {})
+    )
+    extra_force_includes = {
+        src: dst
+        for src, dst in force_includes.items()
+        if src != "microdrop_plugin.toml"
+    }
+
     return {
         "package_name": project["name"],
         "version": project["version"],
@@ -60,6 +75,7 @@ def _read_pyproject(repo_path):
         "anchor_package": anchor_package,
         "run_dependencies": run_dependencies,
         "optional_extras": optional_extras,
+        "extra_force_includes": extra_force_includes,
     }
 
 
@@ -74,7 +90,7 @@ def _group_ending_with(groups, suffix):
 
 
 def _read_manifest(repo_path):
-    """Return device_name, device_label, and the ui/backend group plugins+labels
+    """Return device_name, device_label, and the ui/backend group names+labels+plugins
     from microdrop_plugin.toml."""
     data = tomllib.loads((repo_path / "microdrop_plugin.toml").read_text())
 
@@ -88,8 +104,10 @@ def _read_manifest(repo_path):
     return {
         "device_name": data["name"],
         "device_label": data["label"],
+        "ui_group_name": ui_group["name"],
         "ui_group_label": ui_group["label"],
         "ui_plugins": ui_group["plugins"],
+        "backend_group_name": backend_group["name"],
         "backend_group_label": backend_group["label"],
         "backend_plugins": backend_group["plugins"],
     }

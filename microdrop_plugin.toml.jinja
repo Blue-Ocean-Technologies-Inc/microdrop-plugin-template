@@ -4,13 +4,13 @@ label = "[[ device_label ]]"
 packages = [[ packages | tojson ]]
 
 [[ "[[" ]]groups[[ "]]" ]]
-name = "[[ device_name ]]_ui"
+name = "[[ ui_group_name ]]"
 label = "[[ ui_group_label ]]"
 plugins = [[ ui_plugins | tojson ]]
-enabled_key = "plugin_group_enabled.[[ device_name ]]_ui"
+enabled_key = "plugin_group_enabled.[[ ui_group_name ]]"
 
 [[ "[[" ]]groups[[ "]]" ]]
-name = "[[ device_name ]]_backend"
+name = "[[ backend_group_name ]]"
 label = "[[ backend_group_label ]]"
 plugins = [[ backend_plugins | tojson ]]
-enabled_key = "plugin_group_enabled.[[ device_name ]]_backend"
+enabled_key = "plugin_group_enabled.[[ backend_group_name ]]"
